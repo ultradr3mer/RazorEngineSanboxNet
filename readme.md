@@ -16,3 +16,13 @@ Ziel: Links ein C#-Script, Mitte ein Razor-Template, rechts die gerenderte HTML-
 - **Render-Button** und **Auto-Render** mit Debounce (500 ms).
 - **Fehlerausgabe** für Script- und Templatekompilierung.
 - **Dark Mode** Layout in `MainWindow.xaml`.
+
+```
+┌─────────────────────────────┬─────────────────────────────┬─────────────────────────────┐
+│        ScriptBox (C#)       │       RazorBox (Template)   │     HtmlPreview (Browser)   │
+│                             │                             │                             │
+│   // C#-Skript ...          │   @model dynamic            │   <h1>Hello Welt</h1>       │
+│   new {Name = "Welt"        │   <h1>Hello @Model.Name</h1>│   <p>Jetzt: ...</p>         │
+│        ... }                │   ...                       │   <ul><li>Alpha</li> ...    │
+└─────────────────────────────┴─────────────────────────────┴─────────────────────────────┘
+```
