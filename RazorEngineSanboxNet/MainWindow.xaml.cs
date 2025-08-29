@@ -1,6 +1,6 @@
 ﻿// MainWindow.xaml.cs — RazorEngineSandbox
-// Code-behind: Logik für C#-Scripting (Roslyn) + RazorLight Rendering + HTML-Preview
-// NuGet: Microsoft.CodeAnalysis.CSharp.Scripting, RazorLight (v2)
+// Code-Behind: Enthält die Logik für C#-Scripting (Roslyn) + RazorLight Rendering + HTML-Preview
+// Benötigte NuGet-Pakete: Microsoft.CodeAnalysis.CSharp.Scripting, RazorLight (v2)
 
 using System;
 using System.IO;
@@ -24,17 +24,22 @@ namespace RazorEngineSandbox
 {
     public partial class MainWindow : Window
     {
+        // Timer für Auto-Render mit Verzögerung (Debounce)
         private readonly DispatcherTimer _debounce;
+
+        // RazorLight Engine zum Kompilieren und Rendern von Templates
         private readonly RazorLightEngine _razorEngine;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            // RazorLight Engine initialisieren
             _razorEngine = new RazorLightEngineBuilder()
-                .UseMemoryCachingProvider()
+                .UseMemoryCachingProvider() // Speicher-Caching nutzen
                 .Build();
 
+            // Debounce-Timer initialisieren (500ms)
             _debounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             _debounce.Tick += async (s, e) => { _debounce.Stop(); await RenderAsync(); };
 
@@ -42,6 +47,7 @@ namespace RazorEngineSandbox
             HookEvents();
         }
 
+        // Events an UI-Elemente binden
         private void HookEvents()
         {
             RenderBtn.Click += async (s, e) => await RenderAsync();
@@ -52,6 +58,7 @@ namespace RazorEngineSandbox
             RazorBox.TextChanged += OnEditorTextChanged;
         }
 
+        // Textänderungen im Editor → Debounce starten, falls AutoRender aktiv
         private void OnEditorTextChanged(object sender, TextChangedEventArgs e)
         {
             if (AutoRenderChk.IsChecked == true)
@@ -61,6 +68,7 @@ namespace RazorEngineSandbox
             }
         }
 
+        // Standardwerte für Script und Razor-Template setzen
         private void InitializeDefaults()
         {
             ScriptBox.Text =
@@ -83,6 +91,7 @@ namespace RazorEngineSandbox
             _ = RenderAsync();
         }
 
+        // Render-Prozess: Modell evaluieren, Razor-Template anwenden, HTML anzeigen
         private async Task RenderAsync()
         {
             try
@@ -90,13 +99,16 @@ namespace RazorEngineSandbox
                 ErrorText.Text = string.Empty;
                 StatusText.Text = "Render läuft…";
 
+                // 1) Model aus C#-Script erzeugen
                 var model = await EvaluateModelAsync(ScriptBox.Text);
 
+                // 2) Razor-Template anwenden
                 string template = RazorBox.Text ?? string.Empty;
                 string key = "tpl_" + template.GetHashCode();
 
                 string bodyHtml = await _razorEngine.CompileRenderStringAsync(key, template, (object)model);
 
+                // 3) HTML umschließen und im Browser anzeigen
                 string doc = WrapHtml(bodyHtml);
                 HtmlPreview.NavigateToString(doc);
 
@@ -104,11 +116,13 @@ namespace RazorEngineSandbox
             }
             catch (CompilationErrorException cex)
             {
+                // Fehler beim C#-Scripting
                 ErrorText.Text = "C#-Skriptfehler:\n" + string.Join("\n", cex.Diagnostics.Select(d => d.ToString()));
                 StatusText.Text = "Fehler bei Skriptauswertung";
             }
             catch (TemplateCompilationException tex)
             {
+                // Fehler beim Kompilieren des Razor-Templates
                 var sb = new StringBuilder();
                 sb.AppendLine("Razor-Templatefehler:");
                 foreach (var err in tex.CompilationErrors)
@@ -120,16 +134,19 @@ namespace RazorEngineSandbox
             }
             catch (Exception ex)
             {
+                // Generische Fehlerausgabe
                 ErrorText.Text = ex.ToString();
                 StatusText.Text = "Fehler";
             }
         }
 
+        // HTML-Dokument mit Basis-Struktur und Dark-Mode-Farben umschließen
         private static string WrapHtml(string body)
         {
             return "<!doctype html><html style=\"color:white;background-color:#252526\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"></head><body>" + body + "</body></html>";
         }
 
+        // Script auswerten und Objektmodell erzeugen
         private async Task<object> EvaluateModelAsync(string script)
         {
             if (string.IsNullOrWhiteSpace(script))
@@ -148,6 +165,7 @@ namespace RazorEngineSandbox
             return result ?? new { };
         }
 
+        // Alle geladenen Assemblies einsammeln und als MetadataReferences bereitstellen
         private static IEnumerable<MetadataReference> GetAllMetadataReferences()
         {
             var list = new List<MetadataReference>();
@@ -165,6 +183,7 @@ namespace RazorEngineSandbox
                 catch { }
             }
 
+            // Wichtige Basis-Assemblies sicherstellen
             TryAdd(typeof(object).Assembly);
             TryAdd(typeof(Enumerable).Assembly);
             TryAdd(typeof(Uri).Assembly);
