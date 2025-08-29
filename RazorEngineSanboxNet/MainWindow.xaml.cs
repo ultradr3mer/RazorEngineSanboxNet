@@ -127,7 +127,7 @@ namespace RazorEngineSandbox
 
         private static string WrapHtml(string body)
         {
-            return "<!doctype html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"></head><body>" + body + "</body></html>";
+            return "<!doctype html><html style=\"color:white;background-color:#252526\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"></head><body>" + body + "</body></html>";
         }
 
         private async Task<object> EvaluateModelAsync(string script)
