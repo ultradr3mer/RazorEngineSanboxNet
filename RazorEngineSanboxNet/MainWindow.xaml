@@ -1,0 +1,61 @@
+﻿<!-- MainWindow.xaml — RazorEngineSandbox -->
+<Window x:Class="RazorEngineSandbox.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RazorEngineSandbox"
+        Height="900" Width="1400"
+        WindowStartupLocation="CenterScreen">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <DockPanel Grid.Row="0" LastChildFill="True" Margin="6,6,6,0">
+            <Button x:Name="RenderBtn" Content="Render" Padding="16,6" Margin="0,0,8,0" DockPanel.Dock="Left"/>
+            <CheckBox x:Name="AutoRenderChk" Content="Auto-Render" VerticalAlignment="Center" Margin="0,0,12,0" DockPanel.Dock="Left"/>
+            <TextBlock x:Name="StatusText" Text="Bereit" VerticalAlignment="Center" Foreground="DimGray"/>
+        </DockPanel>
+
+        <!-- Dreigeteilte Ansicht -->
+        <Grid Grid.Row="1" Margin="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Links: C#-Scripting (Model) -->
+            <TextBox x:Name="ScriptBox"
+                     Grid.Column="0"
+                     AcceptsReturn="True" AcceptsTab="True"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     FontFamily="Consolas" FontSize="13"
+                     TextWrapping="NoWrap" Padding="8"/>
+
+            <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="#FFE6E6E6"/>
+
+            <!-- Mitte: Razor-Template -->
+            <TextBox x:Name="RazorBox"
+                     Grid.Column="2"
+                     AcceptsReturn="True" AcceptsTab="True"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     FontFamily="Consolas" FontSize="13"
+                     TextWrapping="NoWrap" Padding="8"/>
+
+            <GridSplitter Grid.Column="3" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="#FFE6E6E6"/>
+
+            <!-- Rechts: HTML-Preview -->
+            <WebBrowser x:Name="HtmlPreview" Grid.Column="4"/>
+        </Grid>
+
+        <!-- Fehlerleiste -->
+        <TextBlock x:Name="ErrorText" Grid.Row="2" Margin="6,0,6,6" Foreground="Firebrick" TextWrapping="Wrap"/>
+    </Grid>
+</Window>
